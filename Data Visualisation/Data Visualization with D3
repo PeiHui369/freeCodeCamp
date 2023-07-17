@@ -1,0 +1,111 @@
+select() : selects 1 element from the doc. It takes an argument for the name of the element you want and returns an HTML node for the first element in the document that matches the name. 
+append() : takes an argument for the element you want to add to the document. It appends an HTML node to a selected item, and returns a handle to that node.
+text() : sets the text of the selected node, or gets the current text. To set the value, you pass a string as an argument inside the parentheses of the method.
+selectAll() : to select a group of elements. It returns an array of HTML nodes for all the items in the document that match the input string.
+data() : used on a selection of DOM elements to attach the data to those elements. The data set is passed as an argument to the method.
+enter() : to create a new element in the document for each piece of data in the set
+enter() + data() : looks at the selected elements from the page and compares them to the number of data items in the set. If there are fewer elements than data items, it creates the missing elements.
+.text(d => d + " USD") : work with dynamic data
+
+-----------
+.style("font-family","verdana") : Add inline styling to elements
+.style("color",d=>(d<20? "red" : "green")) : Change styles based on data
+d3.select("body").selectAll("div)... .attr("class", "bar") : Put a class of bar on div elements
+.style("height", d => d + "px") : To set the height property for each element & use a callback function to return the value of data point with the string "px" added to it
+
+<style>
+.bar {
+  width: 25px;
+  height: 100px;
+  margin-right: 2px;
+  display: inline-block;
+  background-color: blue;
+}
+</style>
+------------------
+
+SVG : Scalable Vector Graphics used to make common geometric shapes
+    const svg = d3.select("body")
+                  .append("svg")
+                  .style("width", w)
+                  .style("height",h)
+                  .attr("class","h")
+
+- Display Shapes:
+    svg.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", 25)
+      .attr("height", 100);
+
+- Create a bar for each dataset
+svg.selectAll("rect")
+    .data(dataset)
+    .enter()
+    .append("rect")
+    .attr("x",0) //Change the x attribute callback function so it returns the index times 30: .attr("x", (d, i) => i*30)    
+    .attr("y",0) //Invert(right-side-up): .attr("y", (d,i) => heightOfSVG - heightOfBar)
+    .attr("width",25)
+    .attr("height",100) //Change the callback function for the height attribute to return the data value times 3: .attr("height", (d, i) => d*3)
+    .attr("fill", "navy") //Change color of an SVG element
+    //Add a Hover Effect to a D3 Element (changes to brown when mouse over it)
+    .attr("class","bar")
+    .attr("fill:hover","brown")
+    //Add a tooltip to a D3 element: Shows more information about an item on a page when the user hovers over that item
+    .append("title")
+    .text((d)=>d)
+
+- Add labels to D3 Elements
+    svg.selectAll("text")
+       .data(dataset)
+       .enter()
+        .append("text")                      //append text nodes to svg
+        .attr("x", (d, i) => i * 30 + 12.5)  //Center the text horizontally
+       .attr("y", (d, i) => h - 3 * d - 3)  //make label sit 3 units higher than bar
+        .text((d) => d)                     //to set the label equal to the data point value
+
+- Style D3 Labels
+        .style("fill","red") //color of text to red; font-size 25px etc.
+
+- Create a Scatterplot with SVG Circles
+svg.selectAll("circle")
+      .data(dataset)
+      .enter()
+      .append("circle")
+      .attr("cx", (d) => d[0])    //first number in the array
+      .attr("cy",(d) => h - d[1]) //second number in the array, make sure right-side-up
+      .attr("r",5)  
+
+- Add Labels to Scatter Plot Circles
+    svg.selectAll("text")
+       .data(dataset)
+       .enter()
+       .append("text")
+        .attr("x", (d) => d[0]+5)
+        .attr("y", (d) => h-d[1])
+        .text((d)=>d.join(", "))
+
+-------------------------------
+Create a Linear Scale with D3
+<body>
+  <script>
+    const scale = d3.scaleLinear(); // Create the scale here
+    scale.domain([250,500])
+    scale.range([10,150])
+    const output = scale(50); // Call scale with an argument here
+    /*Use a D3 method to find the maximum value of the z coordinate (the third value) from the arrays and save it in the output variable.
+    const output = d3.max(positionData, (d)=>d[2]); //d3.min() */
+    d3.select("body")
+      .append("h2")
+      .text(output);
+  </script>
+</body>
+
+- Use dynamic scales
+const yScale = d3.scaleLinear()
+    .domain([0, d3.max(dataset, (d) => d[1])])
+    .range([h-padding, padding]) //range is reversed here to keep the plot right-side-up
+
+/*
+const anchor = d3.select("a");
+finds the first anchor tag on the page and saves an HTML node for it in the variable anchor.
